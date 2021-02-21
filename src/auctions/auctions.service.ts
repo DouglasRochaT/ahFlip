@@ -9,7 +9,7 @@ const { Client } = require("@zikeji/hypixel");
 export class AuctionsService {
   private cache = cacheManager.caching({store: 'memory', max: 100, ttl: 30});
   private client = new Client("aad15ae1-a30e-4ced-95a2-6e10af03bc7a", this.cache);
-
+  
   async getAll() :Promise<AuctionClass[]>{
     let auctions: AuctionClass[];
     let numberOfPages :number;
@@ -26,10 +26,9 @@ export class AuctionsService {
 
     await Promise.all(pageRequests).then(function(result :AuctionsListClass[]){
       result.forEach(function(auctionList){
-        auctions.concat(auctionList.auctions);
+        auctions = auctions.concat(auctionList.auctions);
       });
     })
-    
     return auctions;
   }
 
@@ -37,6 +36,4 @@ export class AuctionsService {
     let auctions :AuctionsListClass = this.client.skyblock.auctions.page(page);
     return auctions;
   }
-
-
 }
