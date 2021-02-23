@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { AuctionClass } from './shared/auction.class';
 import { AuctionsListClass } from './shared/auctions-list.class';
-const cacheManager = require("cache-manager");
-const { Client } = require("@zikeji/hypixel");
+import { FilterClass } from './shared/filter.class';
+
+const _ = require('lodash');
+const cacheManager = require('cache-manager');
+const { Client } = require('@zikeji/hypixel');
 
 
 @Injectable()
@@ -32,8 +35,42 @@ export class AuctionsService {
     return auctions;
   }
 
-  getByPage(page: number): AuctionsListClass{
+  async getByPage(page: number): Promise<AuctionsListClass>{
     let auctions :AuctionsListClass = this.client.skyblock.auctions.page(page);
     return auctions;
+  }
+
+  async getFiltered(filter :FilterClass) :Promise<AuctionClass[]>{
+    return this.getAll().then(function(result :AuctionClass[]){
+      if(filter.legacyAuction === false){
+        _.remove(result, function(auction :AuctionClass){
+          return auction.bin === false;
+        })
+      }
+      if(filter.binAuction === false){
+        _.remove(result, function(auction :AuctionClass){
+          return auction.bin === true;
+        })
+      }
+      if(filter.includePets === false){
+        _.remove(result, function(auction :AuctionClass){
+          return auction.item_lore.includes('Right-click to add this pet');
+        })
+      }
+      if(filter.includeDungeonItens === false){
+        _.remove(result, function(auction :AuctionClass){
+          return auction.item_lore.includes('Gear Score:');
+        })
+      }
+      if(filter.includeBooks === false){
+        _.remove(result, function(auction :AuctionClass){
+          return auction.item_name == 'Enchanted Book';
+        })
+      }
+      _.remove(result, function(auction :AuctionClass){
+        return !(auction.starting_bid >= filter.minBinValue && auction.starting_bid <= filter.maxBinValue)
+      })
+      return result;
+    })
   }
 }
