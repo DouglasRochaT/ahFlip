@@ -73,4 +73,27 @@ export class AuctionsService {
       return result;
     })
   }
+
+  async getAuctionsByProfitMargin(filter :FilterClass) :Promise<AuctionClass[]>{
+    return this.getFiltered(filter).then(function(result :AuctionClass[]){
+      let bestAuctions :AuctionClass[] = new Array();
+      result.forEach(auction => {
+        let index :number = bestAuctions.findIndex(elementBest => elementBest.item_lore == auction.item_lore);
+        if (index == -1){
+          bestAuctions.push(auction);
+        } else {
+          if(bestAuctions[index].profit_margin === undefined && auction.starting_bid > bestAuctions[index].starting_bid){
+            bestAuctions[index].profit_margin = ((auction.starting_bid - bestAuctions[index].starting_bid)*(100/bestAuctions[index].starting_bid));
+          }
+          if(auction.starting_bid < bestAuctions[index].starting_bid){
+            bestAuctions[index] = auction;
+            bestAuctions[index].profit_margin = ((bestAuctions[index].starting_bid - auction.starting_bid)*(100/auction.starting_bid));
+          } else if(auction.starting_bid > bestAuctions[index].starting_bid && ((auction.starting_bid - bestAuctions[index].starting_bid)*(100/bestAuctions[index].starting_bid)) < bestAuctions[index].starting_bid){
+            bestAuctions[index].profit_margin = ((auction.starting_bid - bestAuctions[index].starting_bid)*(100/bestAuctions[index].starting_bid));
+          }
+        }
+      });
+      return bestAuctions;
+    });
+  }
 }

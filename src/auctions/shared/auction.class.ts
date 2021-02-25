@@ -14,6 +14,7 @@ export class AuctionClass {
   claimed: boolean;
   claimed_bidders: string[];
   highest_bid_amount: number;
+  profit_margin: number;
   bids: {
     /**
      * UUID of the auction.
@@ -36,7 +37,7 @@ export class AuctionClass {
      */
     timestamp: number;
   }[];
-  bin?: boolean;
+  bin: boolean;
   /**
    * Base64 encoded NBT data for the item.
    */
