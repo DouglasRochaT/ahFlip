@@ -82,14 +82,19 @@ export class AuctionsService {
         if (index == -1){
           bestAuctions.push(auction);
         } else {
-          if(bestAuctions[index].profit_margin === undefined && auction.starting_bid > bestAuctions[index].starting_bid){
-            bestAuctions[index].profit_margin = ((auction.starting_bid - bestAuctions[index].starting_bid)*(100/bestAuctions[index].starting_bid));
-          }
-          if(auction.starting_bid < bestAuctions[index].starting_bid){
+          if(bestAuctions[index].starting_bid > auction.starting_bid){
+            let profit = bestAuctions[index].starting_bid - auction.starting_bid;
+            let profit_margin = profit / bestAuctions[index].starting_bid * 100;
             bestAuctions[index] = auction;
-            bestAuctions[index].profit_margin = ((bestAuctions[index].starting_bid - auction.starting_bid)*(100/auction.starting_bid));
-          } else if(auction.starting_bid > bestAuctions[index].starting_bid && ((auction.starting_bid - bestAuctions[index].starting_bid)*(100/bestAuctions[index].starting_bid)) < bestAuctions[index].starting_bid){
-            bestAuctions[index].profit_margin = ((auction.starting_bid - bestAuctions[index].starting_bid)*(100/bestAuctions[index].starting_bid));
+            bestAuctions[index].profit_margin = profit_margin;
+          } else {
+            let profit = auction.starting_bid - bestAuctions[index].starting_bid;
+            let profit_margin = profit / auction.starting_bid * 100;
+            if(bestAuctions[index].profit_margin == undefined){
+              bestAuctions[index].profit_margin = profit_margin;
+            } else if(bestAuctions[index].profit_margin > profit_margin){
+              bestAuctions[index].profit_margin = profit_margin;
+            }
           }
         }
       });
